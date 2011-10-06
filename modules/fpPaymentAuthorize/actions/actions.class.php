@@ -19,10 +19,9 @@ class fpPaymentAuthorizeActions extends sfActions
    */
   public function executeInfo(sfWebRequest $request)
   {
-    $type = $request->getParameter('type');
+    $method = $request->getParameter('method');
     $formClass = sfConfig::get('fp_payment_authorize_form_class', 'fpPaymentAuthorizeRequestForm');
     $this->form = new $formClass();
-    $this->form->setDefault('type', $type);
     if (sfRequest::POST == $request->getMethod()) {
       $this->form->bind($request->getParameter($this->form->getName()));
       if ($this->form->isValid()) {
@@ -35,9 +34,9 @@ class fpPaymentAuthorizeActions extends sfActions
           ->doProcess($values)
           ->getIpn();
         if ($ipn->hasErrors()) {
-          return $this->redirect('@fpPaymentPlugin_error?type=' . $type);
+          return $this->redirect('@fpPaymentPlugin_error?method=' . $method);
         } else {
-          return $this->redirect('@fpPaymentPlugin_success?type=' . $type);
+          return $this->redirect('@fpPaymentPlugin_success?method=' . $method);
         }
       }
     }
