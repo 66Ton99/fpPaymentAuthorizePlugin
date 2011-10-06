@@ -1,4 +1,4 @@
-# fpPaymentPayPal
+# fpPaymentAuthorizePlugin
 
 It depends on fpPaymentPlugin
 
