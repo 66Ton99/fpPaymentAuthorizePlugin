@@ -1,0 +1,46 @@
+all:
+  page_info_module: 'fpPaymentAuthorize'
+  page_info_action: 'info'
+  page_error_module: 'fpPaymentAuthorize'
+  page_error_action: 'error'
+  save_card_numbers: 4
+  form_class: 'fpPaymentAuthorizeRequestForm'
+  form_url: 'secure.authorize.net'
+  form_url_path: '/gateway/transact.dll'
+  form_fields:
+    # card info:
+    x_card_num: ''
+    x_exp_date: '' # Credit card expare date
+    x_card_code: '' # Security code
+    # user info:
+    x_address: 
+    x_zip: 
+    x_email: 
+    x_cust_id: 
+    x_first_name: 
+    x_last_name: 
+    x_country: 
+    x_state: 
+    x_city: 
+    x_phone: 
+    x_customer_ip: 
+    # product info:
+    x_Description: 
+#    x_line_item: ''
+    x_amount: 0 #The amount of the transaction
+    x_invoice_num: 0
+  form_hidden_fields:
+    x_method: 'CC'
+    x_type: 'AUTH_CAPTURE'
+    x_delim_data: 'TRUE'
+    x_delim_char: '|'
+    x_relay_response: 'FALSE'
+    x_relay_url: ''
+    x_version: '3.1'
+    x_email_customer: 'TRUE'
+#    x_Test_Request: 'TRUE'
+    # required:
+    x_login: ''
+    x_tran_key: ''
+    
+      

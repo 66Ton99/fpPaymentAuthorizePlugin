@@ -1,0 +1,20 @@
+fpPaymentAuthorize:
+  actAs:
+    Timestampable: ~
+  columns:
+    order_id:
+      type:     integer
+      notnull:  true
+    cardtype:
+      type:     varchar(255)
+      notnull:  true
+    cardnumber:
+      type:     varchar(16)
+      notnull:  true
+    response:
+      type: string
+  relations:
+    fpPaymentOrder:
+      local:    order_id
+      foreign:  id
+      onDelete: cascade

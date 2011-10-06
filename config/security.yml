@@ -1,0 +1,3 @@
+default:
+  require_ssl: true
+  is_secure: <?php echo sfConfig::get('fp_payment_login_strict_mode') . "\n" ?>
