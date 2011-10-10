@@ -94,7 +94,7 @@ class fpPaymentAuthorizeContext extends fpPaymentMethodContext
     $values['x_invoice_num'] = $order->getId();
     
     $order->setType(static::NAME);
-    $order->setStatus(fpPaymentOrder::STATUTS_IN_PROCESS);
+    $order->setStatus(fpPaymentOrderStatusEnum::IN_PROCESS);
     $order->save();
   }
   
@@ -111,9 +111,9 @@ class fpPaymentAuthorizeContext extends fpPaymentMethodContext
     $event['context']->getAuthorize()->getModel()->addResponce(implode('|', $ipn->getResponse()));
     $order = $event['context']->getOrderModel();
     if ($ipn->hasErrors()) {
-      $order->setStatus(fpPaymentOrder::STATUTS_FAIL);
+      $order->setStatus(fpPaymentOrderStatusEnum::FAIL);
     } else {
-      $order->setStatus(fpPaymentOrder::STATUTS_SUCCESS);
+      $order->setStatus(fpPaymentOrderStatusEnum::SUCCESS);
     }
     $order->setType(static::NAME);
     $order->save();
