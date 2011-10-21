@@ -1,6 +1,8 @@
 all:
   page_info_module: 'fpPaymentAuthorize'
   page_info_action: 'info'
+  page_success_module: 'fpPaymentCheckout'
+  page_success_action: 'success'
   page_error_module: 'fpPaymentAuthorize'
   page_error_action: 'error'
   save_card_numbers: 4

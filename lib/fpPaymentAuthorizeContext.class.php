@@ -26,7 +26,6 @@ class fpPaymentAuthorizeContext extends fpPaymentMethodContext
    */
   public function __construct()
   {
-    $this->getContext()->getDispatcher()->connect('fp_payment.befor_process', array($this, 'beforProcess'));
     $this->getContext()->getDispatcher()->connect('fp_payment_order.after_create', array($this, 'afterOrderCreate'));
     $this->getContext()->getDispatcher()->connect('fp_payment_order.after_create',
       array(fpPaymentAuthorizeTable::getInstance(), 'afterOrderCreate'));
@@ -67,19 +66,6 @@ class fpPaymentAuthorizeContext extends fpPaymentMethodContext
   }
   
   /**
-   * Add items to the values
-   *
-   * @param sfEvent $event - Keys: context, values
-   *
-   * @return viod
-   */
-  public function beforProcess(sfEvent $event)
-  {
-    $values = $event['values'];
-    $values['x_amount'] = $event['context']->getCart()->getSum();
-  }
-  
-  /**
    * After order create
    *
    * @param sfEvent $event - Keys: user, user, values, context
@@ -89,10 +75,9 @@ class fpPaymentAuthorizeContext extends fpPaymentMethodContext
   public function afterOrderCreate(sfEvent $event)
   {
     $order = $event['context']->getOrderModel();
-    $values = $event['values'];
-    $values['x_customer_ip'] = $_SERVER['REMOTE_ADDR'];
-    $values['x_invoice_num'] = $order->getId();
-    
+    $event['values']['x_customer_ip'] = $_SERVER['REMOTE_ADDR'];
+    $event['values']['x_invoice_num'] = $order->getId();
+    $event['values']['x_amount'] = $order->getSum();
     $order->setType(static::NAME);
     $order->setStatus(fpPaymentOrderStatusEnum::IN_PROCESS);
     $order->save();
@@ -117,6 +102,19 @@ class fpPaymentAuthorizeContext extends fpPaymentMethodContext
     }
     $order->setType(static::NAME);
     $order->save();
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see fpPaymentMethodContext::renderSuccessPage()
+   */
+  public function renderSuccessPage(sfAction &$action, sfRequest $request) {
+    
+    if ($this->getIpn()->hasErrors()) {
+      return $action->redirect('@fpPaymentPlugin_error?method=' . $request->getParameter('method'));
+    }
+    $action->forward(sfConfig::get('fp_payment_authorize_page_success_module', 'fpPaymentAuthorize'),
+                     sfConfig::get('fp_payment_authorize_page_success_action', 'success'));
   }
   
   /**
