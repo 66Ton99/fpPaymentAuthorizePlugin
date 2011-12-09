@@ -98,7 +98,7 @@ class fpPaymentAuthorizeIpn extends fpPaymentIpnBase
    */
   public function process()
   {
-    $this->curl = new fpPaymentCurl($this->url);
+    $this->curl = new fpPaymentConnection($this->url);
     fpPaymentContext::getInstance()
       ->getAuthorize()
       ->getLoger()
