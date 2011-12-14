@@ -15,9 +15,9 @@ class fpPaymentAuthorizeIpn extends fpPaymentIpnBase
     
   protected $formFields = array(
     // card info:
-    'credit_card' => '',
-    'exp_date' => '', // Credit card year
-    'cvv' => '', // Security code
+    'x_card_num' => '',
+    'x_exp_date' => '', // Credit card year
+    'x_card_code' => '', // Security code
     // user info:
     'x_address' => '',
     'x_zip' => '',
@@ -55,14 +55,26 @@ class fpPaymentAuthorizeIpn extends fpPaymentIpnBase
    *
    * @return void
    */
-  public function __construct()
+  public function __construct($options = array())
   {
-    parent::__construct();
-    $this->url = 'https://' . sfConfig::get('fp_payment_authorize_form_url', 'secure.authorize.net') . 
-                    sfConfig::get('fp_payment_authorize_form_url_path', '/gateway/transact.dll');
     $data = sfConfig::get('fp_payment_authorize_form_fields', $this->formFields);
-    $data = array_merge($data, sfConfig::get('fp_payment_authorize_form_hidden_fields', $this->formHiddenFields));
+    $data = array_merge($data, sfConfig::get('fp_payment_authorize_form_hidden_fields', $this->formHiddenFields), $options);
     parent::setData($data);
+  }
+  
+  public function getUrl()
+  {
+    return 'https://' . sfConfig::get('fp_payment_authorize_form_url', 'secure.authorize.net') . 
+                    sfConfig::get('fp_payment_authorize_form_url_path', '/gateway/transact.dll');
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see fpPaymentIpnBase::getLoger()
+   */
+  public function getLoger()
+  {
+    return $this->getContext()->getAuthorize()->getLoger();
   }
   
   /**
@@ -98,19 +110,17 @@ class fpPaymentAuthorizeIpn extends fpPaymentIpnBase
    */
   public function process()
   {
-    $this->curl = new fpPaymentConnection($this->url);
-    fpPaymentContext::getInstance()
-      ->getAuthorize()
-      ->getLoger()
-      ->addArray($this->data, 'Send data to ' . $this->url . $this->curl->prepareRequest($this->data));
-    $response = $this->curl->sendPostRequest($this->data);
+    $connection = $this->getConnection($this->getUrl());
+    $data = $this->getData();
+    $this->getLoger()
+      ->addArray($this->cleanDataForLog($data), 'Send data to ' . $this->getUrl());
+    $response =  $connection->sendPostRequest($this->getProtocol()->fromArray($data));
     
-    if ($this->curl->hasErrors()) {
-      $response .= $this->errors[] = 'Curl errors: ' . implode("\n", $this->curl->getErrors());
+    if ($connection->hasErrors()) {
+      $response .= $this->errors[] = 'Connection errors: ' . implode("\n", $connection->getErrors());
     }
     
-    fpPaymentContext::getInstance()->getAuthorize()->getLoger()->add($response);
-    
+    $this->getLoger()->add($response);
     //parse response
     $this->response = explode($this->getDelimeter(), $response);
 
@@ -134,7 +144,21 @@ class fpPaymentAuthorizeIpn extends fpPaymentIpnBase
         }
         break;
     }
-    
     return $this;
+  }
+  
+  /**
+   * Remove card secure data
+   *
+   * @param array $data
+   *
+   * @return array
+   */
+  protected function cleanDataForLog($data)
+  {
+    $data['x_card_num'] = substr($data['x_card_num'], 0, -4);
+    $data['x_exp_date'] = 'xxxx';
+    $data['x_card_code'] = 'xxx';
+    return $data;
   }
 }
