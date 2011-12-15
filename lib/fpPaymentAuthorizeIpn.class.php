@@ -156,7 +156,7 @@ class fpPaymentAuthorizeIpn extends fpPaymentIpnBase
    */
   protected function cleanDataForLog($data)
   {
-    $data['x_card_num'] = substr($data['x_card_num'], 0, -4);
+    $data['x_card_num'] = substr($data['x_card_num'], -4);
     $data['x_exp_date'] = 'xxxx';
     $data['x_card_code'] = 'xxx';
     return $data;
